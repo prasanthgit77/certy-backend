@@ -19,33 +19,40 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // allow requests with no origin (like curl, Postman)
+    // allow requests with no origin (curl, Postman, mobile apps)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
+    if (!allowedOrigins.includes(origin)) {
       const msg = `The CORS policy for this site does not allow access from the specified Origin.`;
       return callback(new Error(msg), false);
     }
     return callback(null, true);
   },
-  credentials: true // allow cookies/auth if needed
+  credentials: true
 }));
 
-// parse JSON requests
+// ====================
+// Body parser
+// ====================
+// For JSON
 app.use(express.json());
+// For URL-encoded form data (for multer, if needed)
+app.use(express.urlencoded({ extended: true }));
 
-// serve uploaded files (images)
+// ====================
+// Serve uploaded files
+// ====================
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ====================
 // Routes
 // ====================
-// auth routes
+// Auth routes
 app.use("/api/auth", require("./routes/authRoutes"));
 
-// profile routes (get/update profile, public profile)
+// Profile routes
 app.use("/api/profile", require("./routes/profileRoutes"));
 
-// certificate routes
+// Certificate routes
 app.use("/api/cert", require("./routes/certRoutes"));
 
 // ====================

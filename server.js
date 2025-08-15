@@ -13,13 +13,13 @@ const app = express();
 // CORS setup
 // ====================
 const allowedOrigins = [
-  "http://localhost:3000", // local frontend
-  "https://certy-frontend.vercel.app" // replace with your actual Vercel frontend URL
+  "http://localhost:3000",                  // local frontend
+  "https://certy-frontend-rho.vercel.app"  // your deployed Vercel frontend
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // allow requests with no origin (like curl, mobile apps)
+    // allow requests with no origin (like curl, Postman)
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = `The CORS policy for this site does not allow access from the specified Origin.`;
@@ -27,7 +27,7 @@ app.use(cors({
     }
     return callback(null, true);
   },
-  credentials: true
+  credentials: true // allow cookies/auth if needed
 }));
 
 // parse JSON requests

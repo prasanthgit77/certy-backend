@@ -1,8 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const path = require("path");
-const fs = require("fs"); // <-- add this
 const connectDB = require("./config/db");
 
 dotenv.config();
@@ -35,19 +33,6 @@ app.use(cors({
 // ====================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// ====================
-// Ensure uploads folder exists
-// ====================
-const uploadsDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir);
-}
-
-// ====================
-// Serve uploaded files
-// ====================
-app.use("/uploads", express.static(uploadsDir));
 
 // ====================
 // Routes

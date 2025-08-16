@@ -26,7 +26,7 @@ exports.getMe = async (req, res) => {
   }
 };
 
-// Public profile by username — **no JWT checks**
+// Public profile by username — NO JWT
 exports.getPublicProfile = async (req, res) => {
   try {
     const username = req.params.username.toLowerCase();
@@ -34,15 +34,14 @@ exports.getPublicProfile = async (req, res) => {
 
     if (!user) return res.status(404).json({ msg: "User not found" });
 
-    // fetch certificates in order
     const certificates = await Certificate.find({ user: user._id })
       .sort({ order: 1, createdAt: 1 })
       .lean();
 
-    const host = req.protocol + "://" + req.get("host");
-    const certs = certificates.map(c => ({
+    // Cloudinary already gives correct public URL
+    const certs = certificates.map((c) => ({
       ...c,
-      image: c.image ? `${host}${c.image}` : null
+      image: c.image || null,
     }));
 
     res.json({ user, certificates: certs });

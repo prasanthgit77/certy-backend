@@ -1,5 +1,5 @@
 const Certificate = require("../models/Certificate");
-const cloudinary = require("../config/cloudinary"); // import our cloudinary config
+const cloudinary = require("../config/cloudinary"); // import cloudinary config
 
 exports.addCertificate = async (req, res) => {
   try {
@@ -8,10 +8,10 @@ exports.addCertificate = async (req, res) => {
     let imageUrl = "";
 
     if (req.file) {
-      // upload image buffer to Cloudinary
+      // upload file buffer to Cloudinary
       const result = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: "certificates" }, // optional folder name
+          { folder: "certificates" },
           (error, result) => {
             if (error) reject(error);
             else resolve(result);
@@ -19,16 +19,15 @@ exports.addCertificate = async (req, res) => {
         );
         stream.end(req.file.buffer);
       });
-      imageUrl = result.secure_url;
+      imageUrl = result.secure_url; // Cloudinary URL
     }
 
-    // save certificate with cloudinary image URL
     const cert = new Certificate({
       user: userId,
       title,
       description,
       image: imageUrl,
-      order: Date.now()
+      order: Date.now(),
     });
 
     await cert.save();
@@ -45,24 +44,24 @@ exports.getUserCertificates = async (req, res) => {
       .sort({ order: -1, createdAt: -1 })
       .lean();
 
-    // no need to prepend host, Cloudinary gives full URL
+    // Cloudinary already provides full URL
     res.json(certificates);
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
 };
 
-// reorder: accept array of certificate IDs in desired order (first = top)
+// Reorder certificates
 exports.reorderCertificates = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { orderedIds } = req.body; // e.g. ["id1","id2",...]
+    const { orderedIds } = req.body;
 
     if (!Array.isArray(orderedIds))
       return res.status(400).json({ msg: "orderedIds must be an array" });
 
     let orderValue = Date.now();
-    const updates = orderedIds.map(id => {
+    const updates = orderedIds.map((id) => {
       const update = Certificate.updateOne(
         { _id: id, user: userId },
         { $set: { order: orderValue } }
